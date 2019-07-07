@@ -26,10 +26,10 @@ class FunctionalTest(TestCase):
         new_items = ['first item', 'second item']
 
         self.input_new_item(new_items[0])
-        self.check_to_do_list()
+        self.check_to_do_list(new_items)
 
         self.input_new_item(new_items[1])
-        self.check_to_do_list()
+        self.check_to_do_list(new_items)
     
     def input_new_item(self, item):
         input_field = self.browser.find_element_by_id('new_item')
@@ -38,9 +38,9 @@ class FunctionalTest(TestCase):
         input_field.send_keys(Keys.ENTER)
         time.sleep(1)
 
-    def check_to_do_list(self):
+    def check_to_do_list(self, test_item):
         list_div = self.browser.find_element_by_id('to-do-list')
         to_do_list = list_div.find_elements_by_tag_name('li')
-        self.assertTrue(all(to_do.text == new_items[index] for index, to_do in enumerate(to_do_list)))
+        self.assertTrue(all(to_do.text == test_item[index] for index, to_do in enumerate(to_do_list)))
 
 
