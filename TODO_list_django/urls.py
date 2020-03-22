@@ -19,5 +19,6 @@ from todo_list import views as list_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', list_views.HomePage.as_view(), name='home')
+    path('', list_views.HomePage.as_view(), name='home'),
+    path('save', list_views.save_todo_list, name='save')
 ]
