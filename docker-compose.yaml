@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  todo-list-app:
+    build: .
+    image: todo-list-app:latest
+    hostname: todo-list-app
+    privileged: true
+    restart: always
+    volumes:
+      - ./src:/root
+    ports:
+      - 18888:8888
+    entrypoint:
+      - sh
+      - -c
+      - '/root/run.sh'
+    
