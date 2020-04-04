@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 
 services:
   todo-list-app:
@@ -14,5 +14,6 @@ services:
     entrypoint:
       - sh
       - -c
-      - '/root/run.sh'
-    
+      - "/root/run.sh"
+    env_file:
+      - .env
