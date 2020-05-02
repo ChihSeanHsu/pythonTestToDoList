@@ -11,9 +11,21 @@ services:
       - ./src:/root
     ports:
       - 18888:8888
-    entrypoint:
-      - sh
-      - -c
-      - "/root/run.sh"
+    command: sh -c '/root/run.sh'
     env_file:
       - .env
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080

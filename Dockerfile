@@ -15,6 +15,7 @@ RUN apk update && apk add \
     pcre-dev \
     curl \
     bash \
+    mariadb-dev \
     && pip install --upgrade pip \
     && pip install --no-cache-dir -r /tmp/requirments.txt \
     && apk del \
@@ -25,5 +26,6 @@ RUN apk update && apk add \
 
 RUN mkdir -p /var/log/app \
     && chmod 777 -R /var/log/app
+
 
 COPY src /root
