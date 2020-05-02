@@ -1,0 +1,30 @@
+{
+  "rules": [
+    {
+      "rulePriority": 3,
+      "description": "remove untag",
+      "selection": {
+        "tagStatus": "untagged",
+        "countType": "sinceImagePushed",
+        "countUnit": "days",
+        "countNumber": 1
+      },
+      "action": {
+        "type": "expire"
+      }
+    },
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 10,
+        "tagStatus": "tagged",
+        "tagPrefixList": ["1.0.0."]
+      },
+      "description": "remove 1.0.0 rel image",
+      "rulePriority": 5
+    }
+  ]
+}

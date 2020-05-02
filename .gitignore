@@ -5,3 +5,7 @@ db.sqlite3
 __pycache__
 
 .env
+
+.terraform
+terraform.tfstate*
+.terraform.tfstate*
