@@ -25,16 +25,49 @@ data "terraform_remote_state" "ecr" {
   }
 }
 
+
+module "https_sg" {
+  source  = "terraform-aws-modules/security-group/aws//modules/https-443"
+  version = "~> 3.0"
+
+  vpc_id              = module.networking.vpc_id
+  name                = "${local.env}-https-sg"
+  description         = "Security group with HTTPs ports open for everybody (IPv4 CIDR), egress ports are all world open"
+  ingress_cidr_blocks = ["10.1.0.0/16"]
+}
+
 module "networking" {
-  source                                      = "cn-terraform/networking/aws"
-  version                                     = "2.0.5"
-  name_preffix                                = local.env
-  profile                                     = local.profile
-  region                                      = data.aws_region.current.name
-  vpc_cidr_block                              = "10.0.0.0/16"
-  availability_zones                          = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
-  public_subnets_cidrs_per_availability_zone  = ["10.0.0.0/19", "10.0.32.0/19", "10.0.64.0/19"]
-  private_subnets_cidrs_per_availability_zone = ["10.0.128.0/19", "10.0.160.0/19", "10.0.192.0/19"]
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "${local.env}-vpc"
+  cidr = "10.1.0.0/16"
+
+  azs             = ["ap-northeast-1a", "ap-northeast-1c", "ap-northeast-1d"]
+  private_subnets = ["10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
+  public_subnets  = ["10.1.101.0/24", "10.1.102.0/24", "10.1.103.0/24"]
+
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  enable_ecr_api_endpoint              = true
+  ecr_api_endpoint_private_dns_enabled = true
+  ecr_api_endpoint_security_group_ids  = [module.https_sg.this_security_group_id]
+  enable_ecr_dkr_endpoint              = true
+  ecr_dkr_endpoint_private_dns_enabled = true
+  ecr_dkr_endpoint_security_group_ids  = [module.https_sg.this_security_group_id]
+  enable_s3_endpoint                   = true
+
+  enable_ecs_endpoint                    = true
+  ecs_endpoint_private_dns_enabled       = true
+  ecs_endpoint_security_group_ids        = [module.https_sg.this_security_group_id]
+  enable_ecs_agent_endpoint              = true
+  ecs_agent_endpoint_private_dns_enabled = true
+  ecs_agent_endpoint_security_group_ids  = [module.https_sg.this_security_group_id]
+
+  tags = {
+    Terraform   = "true"
+    Environment = local.env
+  }
 }
 
 resource "aws_default_security_group" "default" {
@@ -71,7 +104,7 @@ module "bastion" {
   source = "../modules/bastion"
   vpc_id = module.networking.vpc_id
 
-  subnet_ids        = module.networking.public_subnets_ids
+  subnet_ids        = module.networking.public_subnets
   security_groups   = [aws_default_security_group.default.id]
   ssh_key           = module.ssh_key_pair.key_name
   internal_networks = [module.networking.vpc_cidr_block]
@@ -86,8 +119,8 @@ module "todo_list" {
   name_preffix      = local.env
   profile           = local.profile
   vpc_id            = module.networking.vpc_id
-  private_subnets   = module.networking.private_subnets_ids
-  public_subnets    = module.networking.public_subnets_ids
+  private_subnets   = module.networking.private_subnets
+  public_subnets    = module.networking.public_subnets
   security_groups   = [aws_default_security_group.default.id]
   image_url_and_tag = "${data.terraform_remote_state.ecr.outputs.repository_url}:${local.env}"
   email_host        = "smtp.gmail.com"

@@ -9,3 +9,5 @@ __pycache__
 .terraform
 terraform.tfstate*
 .terraform.tfstate*
+*.pem
+*.pub
